@@ -1,0 +1,20 @@
+.number {
+	width: 250px;
+	font-size: 44pt;
+	color: black;
+	border-bottom: 2px solid black;
+	display: inline-block;
+	text-align: center;
+	margin-right: 20px;
+}
+
+.fun {
+	background-color: #EE7722;
+	font-size: 44pt;
+	float: right;
+}
+
+.mesg {
+	margin-left: 20px;
+	padding-left: 20px;
+}

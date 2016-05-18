@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Before and After</title>
+		<link href="../common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+		<link href="main.css" type="text/css" rel="stylesheet">
+		<script type="../common/jquery-1.12.3.min.js" type="text/javascript"> </script>
+		<script type="../common/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+	</head>
+	<body>
+		<div class="container">
+			<h1>Before And After
+				<div class="btn btn-primary" id = "newGameBtn" onclick="board.newgame();">New Game</div>
+			</h1>
+			<hr/>
+			<h2>Your score: <span id="score">0</span>&nbsp;&nbsp;&nbsp;&nbsp;
+				<span class="mesg label" id="gameOver"></span>
+			</h2>
+			<h3>Total Score: <span id="totalScore">0</span></h3>
+			<hr/>
+		</div>
+		<div class="container" id="gameContainer">
+			<div class="number" id="num1" contentEditable="true">1</div>
+			<div class="number" id="num2" contentEditable="true">2</div>
+			<div class="number" id="num3" contentEditable="true">3</div>
+		</div>
+
+		<script type="text/javascript">
+			var gameTime = 60;
+			var gameSpeed = 1000;
+			var beforeAfterLevel = 1000;
+
+			function scorer_t() {
+				this.score = 0;
+				this.disp = document.getElementById("score");
+				this.go = document.getElementById("gameOver");
+			}
+			scorer_t.prototype.reset = function(val) {
+				this.score = val;
+				this.disp.innerHTML = val.toString();
+				this.go.innerHTML = "";
+				this.go.className = "";
+			};
+			scorer_t.prototype.step = function() {
+				this.score--;
+				this.disp.innerHTML = this.score.toString();
+			};
+
+			scorer_t.prototype.finish = function() {
+				var ts = document.getElementById("totalScore");
+				var cur = parseInt(ts.innerHTML);
+				cur += this.score;
+				ts.innerHTML = cur;
+				board.finish();
+			};
+
+			scorer_t.prototype.gameOver = function() {
+				this.go.className = "alert alert-danger";
+				this.go.innerHTML = "You Lose!";
+				this.finish();
+			};
+
+			scorer_t.prototype.gameWon = function() {
+				this.go.className = "alert alert-success";
+				this.go.innerHTML = "You Win!";
+				this.finish();
+			};
+
+			function before_after_t() {
+				var num = parseInt(beforeAfterLevel * Math.random());
+				var c = Math.random();
+				this.divs = [
+					document.getElementById("num1"),
+					document.getElementById("num2"),
+					document.getElementById("num3")
+				];
+				for (var i = 0; i < 3; ++i) {
+					this.divs[i].innerHTML = "";
+					this.divs[i].contentEditable = true;
+				}
+
+				var idx = 2;
+				if (c <= 0.33) {
+					idx = 0;
+				} else if (c <= 0.66) {
+					idx = 1;
+				} 
+				this.divs[idx].innerHTML = num; 
+				this.divs[idx].contentEditable = false;
+			}
+
+			before_after_t.prototype.isWon = function() {
+				var vals = [0, 0, 0];
+				for (var i = 0; i < 3; ++i) {
+					vals[i] = parseInt(this.divs[i].innerHTML);
+				}
+				if (vals[0] == (vals[1] - 1)
+					&& vals[1] == (vals[2] - 1)) {
+					return true;
+				}
+				return false;
+			};
+
+
+			function game_t() {
+				this.logic = null;
+				this.scorer = new scorer_t();
+				this.timer = null;
+			}
+
+			game_t.prototype.newGame = function() {
+				this.logic = new before_after_t();
+				this.scorer.reset(gameTime);
+				var mthis = this;
+				var step = function() {
+					if (!mthis.logic.isWon()) {
+						if (mthis.scorer.score > 0) {
+							mthis.scorer.step();
+						} else {
+							mthis.scorer.gameOver();
+							clearInterval(mthis.timer);
+						}
+					} else {
+						mthis.scorer.gameWon();
+						clearInterval(mthis.timer);
+					}
+				};
+
+				this.timer = setInterval(step, gameSpeed);
+			};
+
+
+			var game = new game_t();
+			
+			var board = {
+				newgame: function() {
+					document.getElementById("newGameBtn").class = "btn btn-primary fun btn-disabled";
+					game.newGame();
+				},
+				finish: function() {
+					document.getElementById("newGameBtn").class = "btn btn-primary fun";
+				}
+			};
+
+
+		</script>
+	</body>
+</html>
